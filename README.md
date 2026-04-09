@@ -1,11 +1,13 @@
-# 🧪 eMAG Selenium Automation Tests
+# 🧪 eMAG Selenium Automation Test
 
-Automated end-to-end test scenario for the eMAG website, built using Python and Selenium WebDriver.
+Automated end-to-end UI test for the eMAG website using Python, Selenium WebDriver, and pytest.
 
 This project simulates a real user flow:
-- Login process
+- Manual login (due to CAPTCHA and anti-bot protection)
 - Product search
 - Adding a product to the shopping cart
+- Validation using assertions
+- Navigation to cart page
 
 ---
 
@@ -13,40 +15,41 @@ This project simulates a real user flow:
 
 - Python 3
 - Selenium WebDriver
-- ChromeDriver
-- WebDriverWait (explicit waits)
+- Pytest
+- WebDriver Manager
+- Explicit waits (WebDriverWait)
 
 ---
 
 ## 📌 Features
 
-- Automated browser interaction using Selenium
-- Login flow with manual CAPTCHA handling
-- Product search functionality
-- Add-to-cart automation
-- Use of explicit waits for stability
-- Clean and modular test structure
+- Automated browser interaction
+- End-to-end test scenario
+- Assertion-based validation
+- Handling dynamic elements
+- Manual login workaround for real-world constraints
+- Structured test using pytest
 
 ---
 
-## ⚠️ Note on Authentication
+## ⚠️ Authentication Note
 
-Due to eMAG security measures (CAPTCHA and phone verification), full login automation is not possible.
+Due to eMAG security measures (CAPTCHA and anti-bot protection), login cannot be fully automated.
 
-👉 The script pauses to allow manual completion:
+👉 The test requires manual login:
 
 ```python
-input("Complete CAPTCHA and press Enter...")
+input("Login manually in the browser, then press Enter...")
 
 ---
 
 emag-selenium-tests/
 │
-├── test_emag.py        # Main automation script
-├── requirements.txt    # Dependencies
-├── .gitignore          # Ignored files
-├── .env                # Credentials (not uploaded)
-└── chrome-profile/     # Browser session (ignored)
+├── test_emag.py # Main pytest test
+├── requirements.txt # Dependencies
+├── .gitignore
+├── .env
+└── chrome-profile/ # Optional saved session
 
 ---
 
@@ -65,26 +68,28 @@ python -m venv .venv
 
 .venv\Scripts\Activate.ps1
 
+4. Install dependencies
+
+pip install -r requirements.txt
+
 ▶️ Run the test
 
-python test_emag.py
+pytest -v -s
 
 🧠 What this project demonstrates
 UI test automation with Selenium
-Handling real-world constraints (CAPTCHA, login verification)
-Element interaction (click, send_keys, waits)
-Basic test flow design
-Debugging dynamic web elements
-
-
+Test execution using pytest
+Assertion-based validation
+Handling real-world constraints (CAPTCHA, login)
+Working with dynamic web elements
+End-to-end test design
 🔧 Possible Improvements
-Implement Page Object Model (POM)
-Add pytest framework
-Add assertions for validation
-Generate test reports (HTML / Allure)
-Add CI/CD (GitHub Actions)
-Run tests in headless mode
+Page Object Model (POM)
+Full test suite (multiple test cases)
+Test reporting (Allure / HTML)
+CI/CD integration (GitHub Actions)
+Headless execution
+Session reuse (cookies / profile)
 👨‍💻 Author
 
 GitHub: https://github.com/cipriancorbu
-
