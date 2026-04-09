@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
 
+import pytest
+from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -15,17 +16,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 # Load environment variables
 load_dotenv()
 
-EMAIL = os.getenv("EMAG_EMAIL")
-PASSWORD = os.getenv("EMAG_PASSWORD")
 SEARCH_TERM = os.getenv("SEARCH_TERM")
-
-
-# Validate environment variables
-if not EMAIL:
-    raise ValueError("EMAG_EMAIL is missing from .env file")
-
-if not PASSWORD:
-    raise ValueError("EMAG_PASSWORD is missing from .env file")
 
 if not SEARCH_TERM:
     raise ValueError("SEARCH_TERM is missing from .env file")
@@ -60,7 +51,9 @@ def create_driver():
     options.binary_location = chrome_binary
 
     # Use a dedicated Chrome profile for test sessions
-    options.add_argument(r"--user-data-dir=C:\Users\cipri\Documents\Projects\emag-selenium-tests\chrome-profile")
+    options.add_argument(
+        r"--user-data-dir=C:\Users\cipri\Documents\Projects\emag-selenium-tests\chrome-profile"
+    )
     options.add_argument("--profile-directory=Default")
 
     service = Service(ChromeDriverManager().install())
@@ -68,11 +61,19 @@ def create_driver():
 
     return driver
 
-def login(driver, wait):
-    """Perform login flow until manual verification step."""
+
+@pytest.fixture
+def driver():
+    """Create and close the browser for each test."""
+    browser = create_driver()
+    yield browser
+    browser.quit()
+
+
+def open_emag_homepage(driver, wait):
+    """Open eMAG homepage and accept cookies if present."""
     driver.get("https://www.emag.ro/")
 
-    # Accept cookies if present
     try:
         accept = WebDriverWait(driver, 5).until(
             EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler"))
@@ -82,83 +83,9 @@ def login(driver, wait):
     except TimeoutException:
         print("Cookies popup not present.")
 
-    # Click login
-    login_button = wait.until(
-        EC.element_to_be_clickable((By.XPATH, "//a[contains(@href,'login')]"))
-    )
-    login_button.click()
-    print("Login button clicked.")
 
-    # Enter email
-    email_input = wait.until(
-        EC.visibility_of_element_located((By.ID, "user_login_email"))
-    )
-    email_input.clear()
-    email_input.send_keys(EMAIL)
-    print("Email entered.")
-
-    # Click continue
-    continue_button = wait.until(
-        EC.element_to_be_clickable((By.ID, "user_login_continue"))
-    )
-    continue_button.click()
-    print("Continue clicked.")
-
-    # Try to find password field
-    password_selectors = [
-        (By.ID, "user_login_password"),
-        (By.NAME, "user_login_password"),
-        (By.CSS_SELECTOR, "input[type='password']"),
-    ]
-
-    password_input = None
-    for by, value in password_selectors:
-        try:
-            password_input = WebDriverWait(driver, 5).until(
-                EC.visibility_of_element_located((by, value))
-            )
-            print(f"Password field found using: {by} = {value}")
-            break
-        except TimeoutException:
-            continue
-
-    if password_input is None:
-        raise TimeoutException("Password field not found.")
-
-    password_input.clear()
-    password_input.send_keys(PASSWORD)
-    print("Password entered.")
-
-    # Click submit
-    submit_selectors = [
-        (By.ID, "user_login_submit"),
-        (By.CSS_SELECTOR, "button[type='submit']"),
-        (By.XPATH, "//button[contains(., 'Login')]"),
-        (By.XPATH, "//button[contains(., 'Autentificare')]"),
-    ]
-
-    submit_button = None
-    for by, value in submit_selectors:
-        try:
-            submit_button = WebDriverWait(driver, 5).until(
-                EC.element_to_be_clickable((by, value))
-            )
-            print(f"Submit button found using: {by} = {value}")
-            break
-        except TimeoutException:
-            continue
-
-    if submit_button is None:
-        raise TimeoutException("Submit button not found.")
-
-    submit_button.click()
-print("Login submitted.")
-
-# Manual verification step
-input("Complete the CAPTCHA, phone verification, and click Continue in the browser, then press Enter here to continue...")
 def search_and_add_to_cart(driver, wait):
-    """Search for product and add to cart."""
-    
+    """Search for product and add it to cart."""
     search = wait.until(
         EC.visibility_of_element_located((By.ID, "searchboxTrigger"))
     )
@@ -168,13 +95,13 @@ def search_and_add_to_cart(driver, wait):
     print("Search executed.")
 
     add_button = wait.until(
-        EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Adauga in Cos')]"))
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(., 'Adauga in Cos')]")
+        )
     )
     add_button.click()
-
     print("Product added to cart.")
 
-    # Assertion: verify confirmation message
     confirmation = wait.until(
         EC.visibility_of_element_located(
             (By.XPATH, "//*[contains(text(),'Produsul a fost adaugat in cos')]")
@@ -182,24 +109,17 @@ def search_and_add_to_cart(driver, wait):
     )
 
     assert "cos" in confirmation.text.lower(), "Product was NOT added to cart!"
-
     print("Assertion passed: Product successfully added to cart.")
 
 
-def main():
-    driver = create_driver()
+def test_search_and_add_to_cart(driver):
+    """End-to-end test: open eMAG, login manually, search product, add to cart."""
     wait = WebDriverWait(driver, 10)
 
-    try:
-        login(driver, wait)
-        search_and_add_to_cart(driver, wait)
-        input("Press Enter to close browser...")
-    except Exception as error:
-        print(f"Test failed: {error}")
-        input("Check the browser manually, then press Enter to close...")
-    finally:
-        driver.quit()
+    open_emag_homepage(driver, wait)
 
+    input("Login manually in the browser, then press Enter here to continue...")
 
-if __name__ == "__main__":
-    main()
+    search_and_add_to_cart(driver, wait)
+
+    input("Press Enter to close the browser...")
