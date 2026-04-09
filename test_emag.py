@@ -119,20 +119,19 @@ def search_and_add_to_cart(driver, wait):
     assert "cos" in confirmation.text.lower(), "Product was NOT added to cart!"
     print("Assertion passed: Product successfully added to cart.")
 
-    # Click on cart icon (top right)
+    print("Step 4: clicking cart icon...")
+
     cart_icon = wait.until(
-    EC.element_to_be_clickable(
-        (By.XPATH, "//a[contains(@href,'cart') or contains(@href,'cos')]")
+        EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@href,'cart') or contains(@href,'cos')]")
+        )
     )
-)
-cart_icon.click()
-print("Clicked on cart icon.")
+    cart_icon.click()
+    print("Clicked on cart icon.")
 
-print("Step 5: waiting for cart URL...")
-
-wait.until(lambda d: "cart" in d.current_url or "cos" in d.current_url)
-
-print("Cart page loaded successfully.")
+    print("Step 5: waiting for cart URL...")
+    wait.until(lambda d: "cart" in d.current_url or "cos" in d.current_url)
+    print("Cart page loaded successfully.")
 
 
 def test_search_and_add_to_cart(driver):
