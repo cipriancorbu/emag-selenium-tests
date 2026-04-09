@@ -119,20 +119,23 @@ def search_and_add_to_cart(driver, wait):
     assert "cos" in confirmation.text.lower(), "Product was NOT added to cart!"
     print("Assertion passed: Product successfully added to cart.")
 
-    # Go to cart
-    cart_button = wait.until(
-        EC.element_to_be_clickable((By.XPATH, "//a[contains(@href,'cos')]"))
-    )
-    cart_button.click()
-    print("Navigated to cart.")
-
-    # Verify cart page loaded
-    wait.until(
-        EC.visibility_of_element_located(
-            (By.XPATH, "//*[contains(text(),'Cosul tau')]")
+    # Wait for confirmation popup action
+    view_cart_button = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//a[contains(., 'Vezi detalii cos') or contains(., 'Vezi detalii coș')]"
+            )
         )
     )
+    driver.execute_script("arguments[0].click();", view_cart_button)
+    print("Navigated to cart from confirmation popup.")
 
+    wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//*[contains(text(), 'Cosul tau') or contains(text(), 'Coșul tău')]")
+        )
+    )
     print("Cart page loaded successfully.")
 
 
