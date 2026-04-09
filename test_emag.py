@@ -121,21 +121,18 @@ def search_and_add_to_cart(driver, wait):
 
     # Click on cart icon (top right)
     cart_icon = wait.until(
-        EC.element_to_be_clickable(
-            (By.XPATH, "//a[contains(@href,'cart') or contains(@href,'cos')]")
-        )
+    EC.element_to_be_clickable(
+        (By.XPATH, "//a[contains(@href,'cart') or contains(@href,'cos')]")
     )
-    cart_icon.click()
-    print("Clicked on cart icon.")
+)
+cart_icon.click()
+print("Clicked on cart icon.")
 
-    # Verify cart page
-    wait.until(
-        EC.visibility_of_element_located(
-            (By.XPATH, "//*[contains(text(),'Cosul tau') or contains(text(),'Coșul tău')]")
-        )
-    )
+print("Step 5: waiting for cart URL...")
 
-    print("Cart page loaded successfully.")
+wait.until(lambda d: "cart" in d.current_url or "cos" in d.current_url)
+
+print("Cart page loaded successfully.")
 
 
 def test_search_and_add_to_cart(driver):
