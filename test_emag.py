@@ -92,6 +92,7 @@ def open_emag_login_page(driver, wait):
 
 def search_and_add_to_cart(driver, wait):
     """Search for product and add it to cart."""
+
     search = wait.until(
         EC.visibility_of_element_located((By.ID, "searchboxTrigger"))
     )
@@ -108,6 +109,7 @@ def search_and_add_to_cart(driver, wait):
     add_button.click()
     print("Product added to cart.")
 
+    # Assertion: verify confirmation message
     confirmation = wait.until(
         EC.visibility_of_element_located(
             (By.XPATH, "//*[contains(text(),'Produsul a fost adaugat in cos')]")
@@ -116,6 +118,22 @@ def search_and_add_to_cart(driver, wait):
 
     assert "cos" in confirmation.text.lower(), "Product was NOT added to cart!"
     print("Assertion passed: Product successfully added to cart.")
+
+    # Go to cart
+    cart_button = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(@href,'cos')]"))
+    )
+    cart_button.click()
+    print("Navigated to cart.")
+
+    # Verify cart page loaded
+    wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//*[contains(text(),'Cosul tau')]")
+        )
+    )
+
+    print("Cart page loaded successfully.")
 
 
 def test_search_and_add_to_cart(driver):
