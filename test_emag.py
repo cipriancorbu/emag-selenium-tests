@@ -67,6 +67,7 @@ def driver():
     """Create and close the browser for each test."""
     browser = create_driver()
     yield browser
+    input("Press Enter to close the browser...")
     browser.quit()
 
 
@@ -113,17 +114,30 @@ def search_and_add_to_cart(driver, wait):
     wait.until(lambda d: "emag.ro" in d.current_url)
     print("Add-to-cart action completed.")
 
-    # Open cart directly
-    driver.get("https://www.emag.ro/cart")
-    print("Navigated directly to cart page.")
+    print("Step 4: opening cart from header...")
 
-    page_text = driver.page_source.lower()
+    cart_link = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//a[contains(., 'Cosul meu') or contains(., 'Coșul meu')]"
+            )
+        )
+    )
+    cart_link.click()
+    print("Clicked cart link in header.")
 
-    assert "404" not in page_text, "Cart page returned 404."
+    print("Step 5: verifying cart page...")
+
+    page_title = driver.title.lower()
+    page_text = driver.find_element(By.TAG_NAME, "body").text.lower()
+
+    assert "cosul meu" in page_title or "coșul meu" in page_title, "Cart page title is incorrect."
     assert (
-        "cosul meu" in page_text
-        or "coșul meu" in page_text
-        or "produs" in page_text
+    "cosul meu" in page_text
+    or "coșul meu" in page_text
+    or "produs" in page_text
+    or "cantitate" in page_text
     ), "Cart page did not load correctly."
 
     print("Cart page loaded successfully.")
