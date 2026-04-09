@@ -70,8 +70,8 @@ def driver():
     browser.quit()
 
 
-def open_emag_homepage(driver, wait):
-    """Open eMAG homepage and accept cookies if present."""
+def open_emag_login_page(driver, wait):
+    """Open eMAG homepage, accept cookies if present, and open login page."""
     driver.get("https://www.emag.ro/")
 
     try:
@@ -82,6 +82,12 @@ def open_emag_homepage(driver, wait):
         print("Cookies accepted.")
     except TimeoutException:
         print("Cookies popup not present.")
+
+    login_button = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(@href,'login')]"))
+    )
+    login_button.click()
+    print("Login page opened.")
 
 
 def search_and_add_to_cart(driver, wait):
@@ -116,7 +122,7 @@ def test_search_and_add_to_cart(driver):
     """End-to-end test: open eMAG, login manually, search product, add to cart."""
     wait = WebDriverWait(driver, 10)
 
-    open_emag_homepage(driver, wait)
+    open_emag_login_page(driver, wait)
 
     input("Login manually in the browser, then press Enter here to continue...")
 
