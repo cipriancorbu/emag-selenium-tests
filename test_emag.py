@@ -109,7 +109,7 @@ def search_and_add_to_cart(driver, wait):
     add_button.click()
     print("Product added to cart.")
 
-    # Give the site a moment to update the cart
+    # Give the site a moment to update cart state
     wait.until(lambda d: "emag.ro" in d.current_url)
     print("Add-to-cart action completed.")
 
@@ -117,7 +117,15 @@ def search_and_add_to_cart(driver, wait):
     driver.get("https://www.emag.ro/cart")
     print("Navigated directly to cart page.")
 
-    wait.until(lambda d: "cart" in d.current_url or "cos" in d.current_url)
+    page_text = driver.page_source.lower()
+
+    assert "404" not in page_text, "Cart page returned 404."
+    assert (
+        "cosul meu" in page_text
+        or "coșul meu" in page_text
+        or "produs" in page_text
+    ), "Cart page did not load correctly."
+
     print("Cart page loaded successfully.")
 
 
