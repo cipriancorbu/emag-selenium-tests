@@ -156,9 +156,9 @@ print("Login submitted.")
 
 # Manual verification step
 input("Complete the CAPTCHA, phone verification, and click Continue in the browser, then press Enter here to continue...")
-
 def search_and_add_to_cart(driver, wait):
     """Search for product and add to cart."""
+    
     search = wait.until(
         EC.visibility_of_element_located((By.ID, "searchboxTrigger"))
     )
@@ -173,6 +173,18 @@ def search_and_add_to_cart(driver, wait):
     add_button.click()
 
     print("Product added to cart.")
+
+    # Assertion: verify confirmation message
+    confirmation = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//*[contains(text(),'Produsul a fost adaugat in cos')]")
+        )
+    )
+
+    assert "cos" in confirmation.text.lower(), "Product was NOT added to cart!"
+
+    print("Assertion passed: Product successfully added to cart.")
+
 
 def main():
     driver = create_driver()
